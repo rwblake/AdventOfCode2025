@@ -21,8 +21,21 @@ def part_one(rotations):
 
 
 
-def part_two(lines):
-	pass
+def part_two(rotations):
+	dial = 50
+	zero_count = 0
+	for rotation in rotations:
+		direction = rotation[0]
+		clicks = int(rotation[1:])
+
+		for _ in range(clicks):
+			if direction == "R":
+				dial = (dial + 1) % 100
+			else:
+				dial = (dial - 1) % 100
+			if dial == 0:
+				zero_count += 1
+	return zero_count
 
 
 def main():
