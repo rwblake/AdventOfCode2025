@@ -3,19 +3,38 @@
 
 import sys
 
-def maximum_joltage(bank):
-	# left-to-right find the biggest first digit (excl final digit). first occurence
-	first_digit = '0'
-	first_digit_idx = 0
-	for i, digit in enumerate(bank[:-1]):
-		if digit > first_digit:
-			first_digit = digit
-			first_digit_idx = i
-	# find the largest second digit in the remaining section
-	second_digit = max(bank[first_digit_idx+1:])
 
-	maximum_joltage = int(first_digit + second_digit)
+def maximum_joltage_iterative(bank, n=2):
+	maximum_joltage = ""
+	for digit_idx in range(1, n):
+		best = '0'
+		count = 0
+		for i, digit in enumerate(bank[:-(n-digit_idx)]):  # for the first digit exclude the last n-1 places etc
+			if digit > best:
+				best = digit
+				count = i + 1
+		maximum_joltage += best
+		for _ in range(count):
+			bank = bank[1:]
+	maximum_joltage += max(bank)
+	maximum_joltage = int(maximum_joltage)
 	return maximum_joltage
+
+def maximum_joltage_recursive(bank, n=2):
+	# base case
+	if n == 1:
+		return max(bank)
+
+	# find the earliest greatest digit
+	# excluding the last (n-1) digits
+	digit = max(bank[:1-n])
+	# prune off up to the digit you found (inclusive)
+	i = bank.index(digit)
+	# recurse, decrementing n
+	return digit + maximum_joltage_recursive(bank[i+1:], n-1)
+
+def maximum_joltage(bank, n=2):
+	return int(maximum_joltage_recursive(bank, n))
 
 
 def part_one(banks):
@@ -23,7 +42,7 @@ def part_one(banks):
 
 
 def part_two(banks):
-	pass
+	return sum([maximum_joltage(bank, n=12) for bank in banks])
 
 
 def main():
