@@ -27,7 +27,17 @@ def part_one(lines):
 
 
 def part_two(lines):
-	pass
+	_, fresh_ranges = parse(lines)
+	fresh_ranges.sort(key=lambda r: r.start)
+
+	total = 0
+	high  = float('-inf')
+	for fresh_range in fresh_ranges:
+		l = max(high, fresh_range.start)
+		h = max(high, fresh_range.stop)
+		total += h - l
+		
+	return total
 
 
 def main():
