@@ -21,15 +21,37 @@ def part_one(lines):
 			func = lambda x, y: x * y
 		elif operator == '+':
 			func = lambda x, y: x + y
-			
+
 		result   = reduce(func, values)
 		total += result
 	return total
 
 
 def part_two(lines):
-	pass
+	# rotate (kinda)
+	lines = zip(*lines)
+	total = 0
 
+	values = []
+	for line in lines:
+		operator = line[-1]
+		value    = ''.join(line[:-1])
+
+		if value.isspace():
+			total += reduce(func, values)
+			values = []
+			continue
+			
+		values.append(int(value))
+
+		if operator == '*':
+			func = lambda x, y: x * y
+		elif operator == '+':
+			func = lambda x, y: x + y
+
+	if values:
+		total += reduce(func, values)
+	return total
 
 def main():
 	standard_path = "input/06_trash_compactor.txt"
