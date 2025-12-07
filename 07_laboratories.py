@@ -2,6 +2,7 @@
 
 
 import sys
+from collections import Counter
 
 
 BEAM     = 'S'
@@ -16,19 +17,19 @@ def parse(lines):
 	for y, line in enumerate(lines):
 		for x, cell in enumerate(line):
 			if   cell == BEAM:
-				beams.append([x, y])
+				beams.append((x, y))
 			elif cell == SPLITTER:
-				splitters.append([x, y])
+				splitters.append((x, y))
 
 	return beams, splitters, height
 
 
 def step(beam, splitters):
 	"""calculate new beam locations after 1 time step"""
-	beam[1] += 1
+	beam = (beam[0], beam[1] + 1)
 	if beam in splitters:
-		beam_left  = [beam[0] - 1, beam[1]]
-		beam_right = [beam[0] + 1, beam[1]]
+		beam_left  = (beam[0] - 1, beam[1])
+		beam_right = (beam[0] + 1, beam[1])
 		beams = [beam_left, beam_right]
 	else:
 		beams = [beam]
@@ -52,7 +53,22 @@ def part_one(lines):
 
 
 def part_two(lines):
-	pass
+	# naiive solution has exponential time, space, complexity
+	# instead of computing multiple times the same beam, add a count to it
+	beams, splitters, height = parse(lines)
+	beams = Counter(beams)
+
+	for time_step in range(height):
+		new_beams = Counter()
+
+		for beam, count in beams.items():
+			beam_step = step(beam, splitters)
+			for beam in beam_step:
+				new_beams[beam] += count
+
+		beams = new_beams
+		
+	return sum(beams.values())
 
 
 def main():
