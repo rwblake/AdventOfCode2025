@@ -36,8 +36,30 @@ def part_one(lines):
 
 
 def part_two(lines):
-	pass
+	boxes     = parse(lines)
+	circuits  = [[i] for i in range(len(boxes))]
+	pairs     = list(combinations(range(len(boxes)), 2))
+	distance  = lambda pair: np.sum((boxes[pair[0]]-boxes[pair[1]])**2)
+	pairs.sort(key=distance)
 
+	while len(circuits) > 1:
+		a, b = pairs.pop(0)
+		# find the circuit containting b and remove it from list
+		circuit_b = None
+		for circuit in circuits:
+			if b in circuit and a not in circuit:
+				circuit_b = circuit
+				circuits.remove(circuit)
+				break
+		else:
+			# if it already contains a then do nothing
+			continue
+		# merge the circuit with the circuit containing a
+		for circuit in circuits:
+			if a in circuit:
+				circuit.extend(circuit_b)
+
+	return boxes[a][0] * boxes[b][0]
 
 def main():
 	standard_path = "input/08_playground.txt"
