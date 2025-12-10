@@ -62,21 +62,7 @@ def construct_perimeter(points, margin, clockwise):
 	return perimeter
 
 
-def plot_polygon(polygon):
-	xs = [point[0] for point in polygon]
-	ys = [point[1] for point in polygon]
-	# connect last and first vertices
-	# by repeating first vertex at end
-	xs.append(polygon[0][0])
-	ys.append(polygon[0][1])
-	plt.plot(xs, ys)
-
-count = 0
-
 def lines_intersect(a, b):
-	global count
-	count += 1
-
 	p1, p2 = a
 	p3, p4 = b
 
@@ -93,28 +79,15 @@ def lines_intersect(a, b):
 	u = - ((x1-x2)*(y1-y3) - (y1-y2)*(x1-x3)) / ((x1-x2)*(y3-y4) - (y1-y2)*(x3-x4))
 	return 0 <= u <= 1 and 0 <= t <= 1
 
+
 def polygons_intersect(a, b):
 	a = a.copy()
 	b = b.copy()
 	a.append(a[0])
 	b.append(b[0])
-
 	lines_a = list(pairwise(a))
 	lines_b = list(pairwise(b))
-
-	#assert len(lines_a) == 4
-	#assert len(lines_b) == 8
-
-	#lines_b = [(np.array([11.5,  0.5]), np.array([11.5,  7.5])), (np.array([11.5,  7.5]), np.array([8.5, 7.5])), (np.array([8.5, 7.5]), np.array([8.5, 5.5])), (np.array([8.5, 5.5]), np.array([1.5, 5.5])), (np.array([1.5, 5.5]), np.array([1.5, 2.5])), (np.array([1.5, 2.5]), np.array([6.5, 2.5])), (np.array([6.5, 2.5]), np.array([6.5, 0.5])), (np.array([6.5, 0.5]), np.array([11.5,  0.5]))]
 	return any(lines_intersect(line_a, line_b) for line_a in lines_a for line_b in lines_b)
-
-
-def filter_pair(pair, tiles, perimeter):
-	p1, p3 = tiles[pair[0]], tiles[pair[1]]
-	p2 = np.array([p1[0], p3[1]])
-	p4 = np.array([p3[0], p1[1]])
-	rectangle = [p1, p2, p3, p4]
-	return not polygons_intersect(rectangle, perimeter)
 
 
 def part_two(lines):
@@ -147,28 +120,23 @@ def part_two(lines):
 	# TBC
 
 	# make list of possible rectangles
-	pairs     = list(combinations(range(len(tiles)), 2))  # combinations of box indices
 	
-	# find best areas
+	pairs     = list(combinations(range(len(tiles)), 2))  # combinations of box indices
+	# sort pairs by area
 	area = lambda pair: np.prod(np.abs(tiles[pair[0]]-tiles[pair[1]])+np.array([1, 1]))
 	pairs.sort(key=area, reverse=True)
 
-	# filter areas which don't intersect the perimeter polygon
+	# find first rectangle which doesn't intersect the perimeter polygon
 	for pair in tqdm(pairs):
-		if filter_pair(pair, tiles, perimeter):
-			best_pair = pair
-			break
-	
-	p1, p3 = tiles[best_pair[0]], tiles[best_pair[1]]
-	p2 = np.array([p1[0], p3[1]])
-	p4 = np.array([p3[0], p1[1]])
-	rectangle = [p1, p2, p3, p4]
-	print(rectangle)
-	plot_polygon(rectangle)
-	
-	plot_polygon(perimeter)
-	plot_polygon(tiles)
-	plt.show()
+		p1, p3 = tiles[pair[0]], tiles[pair[1]]
+		p2 = np.array([p1[0], p3[1]])
+		p4 = np.array([p3[0], p1[1]])
+		rectangle = [p1, p2, p3, p4]
+		if polygons_intersect(rectangle, perimeter):
+			continue
+
+		best_pair = pair
+		break
 	return area(best_pair)
 
 
