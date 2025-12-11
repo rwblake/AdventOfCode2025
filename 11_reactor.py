@@ -2,6 +2,7 @@
 
 
 import sys
+import functools
 
 
 def num_paths(rack, start, end):
@@ -16,7 +17,20 @@ def part_one(lines):
 	return num_paths(rack, "you", "out")
 
 def part_two(lines):
-	pass
+	rack = {items[0][:-1]: items[1:] for items in map(lambda x: x.split(), lines)}
+	
+	@functools.cache
+	def num_paths(start, end, dac=False, fft=False):
+		if start == end:
+			return 1 if dac and fft else 0
+
+		if start == "dac":
+			dac = True
+		if start == "fft":
+			fft = True
+		return sum(num_paths(output, end, dac, fft) for output in rack[start])
+	
+	return num_paths("svr", "out")
 
 
 def main():
